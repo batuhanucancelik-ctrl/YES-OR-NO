@@ -1,94 +1,67 @@
 const noBtn = document.getElementById("no");
 const yesBtn = document.getElementById("yes");
-const card = document.querySelector(".card");
 const hoverSound = document.getElementById("hoverSound");
 const yesSound = document.getElementById("yesSound");
 
-/**
- * BUTON KAÇIRMA MANTIĞI
- */
+// KAÇIŞ FONKSİYONU
 function moveButton(e) {
-    // Mobilde tıklama/seçme efektini ve sayfa kaymasını engeller
-    if (e.type === 'touchstart') {
-        e.preventDefault();
-    }
+    // Mobilde tıklamayı ve mavi seçimi engeller
+    if (e.type === 'touchstart') e.preventDefault();
 
-    // Ses efektini oynat (isteğe bağlı)
-    if (hoverSound) {
-        hoverSound.currentTime = 0;
-        hoverSound.play().catch(() => {}); // Kullanıcı etkileşimi olmadan ses çalmayabilir
-    }
+    // Ses çal
+    hoverSound.currentTime = 0;
+    hoverSound.play().catch(() => {});
 
-    // Ekran boyutlarını al
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
+    // Ekran sınırlarını hesapla (Butonun dışarı taşmaması için)
+    const padding = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+    const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-    // Buton boyutlarını al
-    const btnWidth = noBtn.offsetWidth;
-    const btnHeight = noBtn.offsetHeight;
+    // Rastgele pozisyon
+    const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
-    // Güvenli alan hesapla (Ekrandan 20px içeride kalsın)
-    const maxX = windowWidth - btnWidth - 20;
-    const maxY = windowHeight - btnHeight - 20;
-
-    // Rastgele yeni pozisyon (En az 0, en fazla maxX/maxY)
-    const randomX = Math.max(10, Math.floor(Math.random() * maxX));
-    const randomY = Math.max(10, Math.floor(Math.random() * maxY));
-
-    // Pozisyonu uygula
-    noBtn.style.position = 'fixed';
-    noBtn.style.left = randomX + 'px';
-    noBtn.style.top = randomY + 'px';
-    noBtn.style.zIndex = "9999"; // Her zaman en üstte görünsün
+    // Yeni koordinatları uygula
+    noBtn.style.position = "fixed";
+    noBtn.style.left = randomX + "px";
+    noBtn.style.top = randomY + "px";
+    noBtn.style.zIndex = "999";
 }
 
-// Olay Dinleyicileri (Hem Fare Hem Dokunmatik)
-noBtn.addEventListener("mouseenter", moveButton); // PC için
-noBtn.addEventListener("touchstart", moveButton, { passive: false }); // Mobil için
-noBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    moveButton(e);
-});
+// Olay Dinleyicileri (Hem Fare Hem Parmak Dokunuşu)
+noBtn.addEventListener("mouseenter", moveButton);
+noBtn.addEventListener("touchstart", moveButton, { passive: false });
 
-/**
- * EVET BUTONU MANTIĞI
- */
+// EVET'E TIKLANDIĞINDA
 yesBtn.addEventListener("click", () => {
-    if (yesSound) yesSound.play().catch(() => {});
+    yesSound.play().catch(() => {});
 
-    // Konfeti Patlatma
     confetti({
-        particleCount: 260,
-        spread: 120,
-        origin: { y: 0.65 }
+        particleCount: 200,
+        spread: 70,
+        origin: { y: 0.6 }
     });
 
-    // Sayfa içeriğini güncelle
-    setTimeout(() => {
-        alert("YAŞASINNN! 💕 Harika bir randevu bizi bekliyor!");
-        // İsteğe bağlı: Sayfayı yeni bir mesaja yönlendir veya içeriği değiştir
-    }, 500);
+    // Sayfayı güncelle
+    document.querySelector(".card").innerHTML = `
+        <div class="emoji">💖</div>
+        <h2 style="color: #ff4d6d;">Harika! ❤️</h2>
+        <p style="font-size: 18px; color: #4a1c2f;">Randevumuz ayarlandı!</p>
+        <div class="hint" style="margin-top:20px;">Seni bekliyor olacağım... ✨</div>
+    `;
 });
 
-/**
- * ARKA PLAN KALPLERİ (Gelişmiş Versiyon)
- */
+// ARKA PLAN KALPLERİ
 function createHeart() {
     const heart = document.createElement("div");
     heart.className = "heart";
-    heart.innerHTML = Math.random() > 0.5 ? "❤️" : "💗";
+    heart.innerHTML = ["❤️", "💖", "💗", "✨"][Math.floor(Math.random() * 4)];
     heart.style.left = Math.random() * 100 + "vw";
-    heart.style.fontSize = Math.random() * 22 + 14 + "px";
-    heart.style.animationDuration = Math.random() * 3 + 4 + "s";
-    heart.style.opacity = Math.random() * 0.5 + 0.4;
-    heart.style.position = "absolute";
-    heart.style.bottom = "-50px";
-    
+    heart.style.fontSize = Math.random() * 20 + 15 + "px";
+    heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+    heart.style.opacity = Math.random() * 0.5 + 0.3;
     document.body.appendChild(heart);
-    
-    // Belleği yormamak için kalpleri sil
-    setTimeout(() => heart.remove(), 8000);
+    setTimeout(() => heart.remove(), 5000);
 }
 
-// Her 400ms'de bir kalp oluştur
 setInterval(createHeart, 400);
